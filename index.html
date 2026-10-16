@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitPanel — پنل مربی</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-blue: #00BFFF;
+    --neon-blue-bright: #00E5FF;
+    --neon-cyan: #00F2FE;
+    --neon-silver: #C0C0C0;
+    --neon-silver-light: #E8E8E8;
+    --dark-bg: #000000;
+    --glow-blue: 0 0 20px rgba(0, 191, 255, 0.5);
+    --gradient-main: linear-gradient(135deg, #C0C0C0, #00BFFF);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: #000000;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(0, 191, 255, 0.15), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(0, 229, 255, 0.1), transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(192, 192, 192, 0.04), transparent 60%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: #fff;
+    line-height: 1.8;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* === نوار بالا === */
+  .top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.35);
+    box-shadow: 0 2px 30px rgba(0, 191, 255, 0.25);
+  }
+  .top-bar .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 900;
+    font-size: 1.1em;
+  }
+  .top-bar .brand .logo {
+    width: 46px; height: 46px;
+    background: rgba(0, 191, 255, 0.05);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    padding: 3px;
+    border: 1.5px solid rgba(0, 191, 255, 0.5);
+    box-shadow: 
+      0 0 20px rgba(0, 191, 255, 0.6),
+      inset 0 0 15px rgba(0, 191, 255, 0.1);
+    transition: all 0.3s;
+  }
+  .top-bar .brand .logo:hover {
+    box-shadow: 
+      0 0 30px rgba(0, 191, 255, 0.9),
+      inset 0 0 20px rgba(0, 191, 255, 0.2);
+    transform: scale(1.05);
+  }
+  .top-bar .brand .logo img {
+    width: 100%; height: 100%; object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(0, 191, 255, 0.5));
+  }
+  .top-bar .brand span {
+    background: linear-gradient(135deg, #C0C0C0, #00BFFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 900;
+    filter: drop-shadow(0 0 8px rgba(0, 191, 255, 0.5));
+  }
+  .hamburger {
+    background: rgba(0, 191, 255, 0.15);
+    border: 1px solid rgba(0, 191, 255, 0.4);
+    color: #fff;
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    font-size: 1.4em;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .hamburger:hover {
+    background: rgba(0, 191, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+  }
+  .hamburger.active { transform: rotate(90deg); }
+
+  /* === منوی کشویی کناری === */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    height: 100vh;
+    background: linear-gradient(180deg, rgba(15, 15, 25, 0.98), rgba(5, 5, 15, 0.98));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: -5px 0 40px rgba(0, 0, 0, 0.7);
+    z-index: 1100;
+    transition: right 0.4s ease;
+    overflow-y: auto;
+    padding-top: 90px;
+    border-left: 1px solid rgba(0, 191, 255, 0.25);
+  }
+  .sidebar.open { right: 0; }
+  .sidebar::-webkit-scrollbar { width: 5px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(0, 191, 255, 0.3); border-radius: 5px; }
+  .sidebar-header {
+    padding: 0 20px 15px;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+    margin-bottom: 15px;
+    position: sticky;
+    top: 0;
+    background: rgba(10, 10, 20, 0.98);
+    z-index: 10;
+    padding-top: 10px;
+  }
+  .sidebar-header h3 {
+    font-size: 1em;
+    color: #00E5FF;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+  }
+  .sidebar-header p {
+    font-size: 0.75em;
+    color: #a5b4fc;
+    margin-top: 4px;
+  }
+  .search-box {
+    margin-top: 12px;
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85em;
+    outline: none;
+    transition: all 0.25s;
+  }
+  .search-box:focus {
+    border-color: #00E5FF;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15), 0 0 15px rgba(0, 191, 255, 0.3);
+  }
+  .search-box::placeholder { color: #4b5563; }
+
+  .student-list {
+    list-style: none;
+    padding: 0 12px 20px;
+  }
+  .student-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: rgba(0, 191, 255, 0.04);
+    border: 1px solid rgba(0, 191, 255, 0.1);
+  }
+  .student-item:hover {
+    background: rgba(0, 191, 255, 0.15);
+    border-color: rgba(0, 191, 255, 0.5);
+    transform: translateX(-5px);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+  }
+  .student-item.active {
+    background: linear-gradient(135deg, rgba(0, 191, 255, 0.25), rgba(0, 229, 255, 0.15));
+    border-color: #00E5FF;
+    box-shadow: 
+      0 4px 20px rgba(0, 191, 255, 0.4),
+      inset 0 0 15px rgba(0, 191, 255, 0.1);
+  }
+  .student-item .avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C0C0C0, #00BFFF);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 1em;
+    flex-shrink: 0;
+    color: #000;
+    box-shadow: 0 0 12px rgba(0, 191, 255, 0.5);
+  }
+  .student-item .info { flex: 1; min-width: 0; }
+  .student-item .info .name {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .student-item .info .meta {
+    font-size: 0.7em;
+    color: #7ecbff;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .student-item .arrow {
+    color: #00BFFF;
+    font-size: 1.1em;
+    opacity: 0.7;
+    text-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+  }
+
+  .no-result {
+    text-align: center;
+    padding: 25px 15px;
+    color: #6b7280;
+    font-size: 0.85em;
+  }
+  .no-result .icon {
+    font-size: 2em;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+
+  /* === لایه تاریک پشت منو === */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+  }
+  .overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* === محتوای اصلی === */
+  .main-content {
+    padding: 100px 20px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .welcome {
+    text-align: center;
+    padding: 35px 20px;
+    background: rgba(15, 15, 25, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px dashed rgba(0, 191, 255, 0.4);
+    margin-bottom: 25px;
+    box-shadow: inset 0 0 30px rgba(0, 191, 255, 0.05);
+  }
+  .welcome .icon { font-size: 3em; margin-bottom: 10px; }
+  .welcome h2 {
+    font-size: 1.4em;
+    font-weight: 900;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #E8E8E8, #00E5FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(0, 191, 255, 0.4));
+  }
+  .welcome p { color: #7ecbff; font-size: 0.9em; }
+
+  /* === کارت اطلاعات شاگرد === */
+  .student-card {
+    background: linear-gradient(135deg, rgba(0, 191, 255, 0.12), rgba(0, 229, 255, 0.05));
+    border: 1px solid rgba(0, 191, 255, 0.35);
+    border-radius: 20px;
+    padding: 22px;
+    margin-bottom: 20px;
+    display: none;
+    box-shadow: 
+      0 8px 30px rgba(0, 0, 0, 0.4),
+      0 0 25px rgba(0, 191, 255, 0.15),
+      inset 0 0 25px rgba(0, 191, 255, 0.05);
+  }
+  .student-card.show { display: block; }
+  .student-card .header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.25);
+    margin-bottom: 15px;
+  }
+  .student-card .header .big-avatar {
+    width: 65px; height: 65px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C0C0C0, #00BFFF);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6em;
+    font-weight: 900;
+    flex-shrink: 0;
+    color: #000;
+    box-shadow: 0 0 25px rgba(0, 191, 255, 0.6);
+  }
+  .student-card .header .info h3 {
+    font-size: 1.2em;
+    font-weight: 900;
+    color: #E8E8E8;
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+  }
+  .student-card .header .info p {
+    font-size: 0.82em;
+    color: #7ecbff;
+    margin-top: 3px;
+  }
+  .student-card .fee-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .student-card .fee-row .item {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(0, 191, 255, 0.15);
+    transition: all 0.3s;
+  }
+  .student-card .fee-row .item:hover {
+    border-color: rgba(0, 191, 255, 0.4);
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+  }
+  .student-card .fee-row .label {
+    font-size: 0.72em;
+    color: #a5b4fc;
+    margin-bottom: 5px;
+  }
+  .student-card .fee-row .value {
+    font-size: 0.95em;
+    font-weight: 900;
+  }
+  .value.ok { color: #00FFAA; text-shadow: 0 0 10px rgba(0, 255, 170, 0.5); }
+  .value.warning { color: #FFD54F; text-shadow: 0 0 10px rgba(255, 213, 79, 0.5); }
+  .value.danger { color: #FF6B6B; text-shadow: 0 0 12px rgba(255, 107, 107, 0.7); }
+
+  /* === روزهای تمرین === */
+  .day {
+    background: rgba(15, 15, 25, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(0, 191, 255, 0.2);
+    box-shadow: 
+      0 8px 25px rgba(0, 0, 0, 0.4),
+      inset 0 0 20px rgba(0, 191, 255, 0.03);
+    transition: all 0.3s;
+  }
+  .day:hover {
+    border-color: rgba(0, 191, 255, 0.5);
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.5),
+      0 0 25px rgba(0, 191, 255, 0.15);
+  }
+  .day-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(0, 191, 255, 0.3);
+    color: #E8E8E8;
+  }
+  .day-num {
+    background: linear-gradient(135deg, #C0C0C0, #00BFFF);
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 0.85em;
+    flex-shrink: 0;
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+  }
+  .day.mamoot .day-num {
+    background: linear-gradient(135deg, #00BFFF, #00E5FF);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+  }
+  .day.drop .day-num {
+    background: linear-gradient(135deg, #E8E8E8, #00BFFF);
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86em; }
+  th {
+    background: rgba(0, 191, 255, 0.12);
+    padding: 10px 8px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.85em;
+    color: #00E5FF;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.3);
+    text-shadow: 0 0 8px rgba(0, 191, 255, 0.4);
+  }
+  td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.08);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0, 191, 255, 0.05); }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+  }
+  .tag.drop {
+    background: rgba(0, 229, 255, 0.15);
+    color: #00E5FF;
+    border: 1px solid rgba(0, 229, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+  }
+  .tag.super {
+    background: rgba(255, 213, 79, 0.15);
+    color: #FFD54F;
+    border: 1px solid rgba(255, 213, 79, 0.4);
+    box-shadow: 0 0 10px rgba(255, 213, 79, 0.2);
+  }
+  .tag.normal {
+    background: rgba(0, 255, 170, 0.15);
+    color: #00FFAA;
+    border: 1px solid rgba(0, 255, 170, 0.4);
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
+  }
+
+  .note {
+    background: rgba(0, 191, 255, 0.08);
+    border-right: 4px solid #00BFFF;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-top: 12px;
+    font-size: 0.82em;
+    color: #7ecbff;
+    box-shadow: inset 0 0 15px rgba(0, 191, 255, 0.05);
+  }
+
+  @media (max-width: 600px) {
+    .main-content { padding: 90px 12px 30px; }
+    .sidebar { width: 290px; }
+    .student-card .fee-row { grid-template-columns: 1fr; }
+    table { font-size: 0.78em; }
+    th, td { padding: 8px 5px; }
+    .top-bar .brand .logo { width: 42px; height: 42px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- === نوار بالای صفحه === -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="logo">
+        <img src="logo.png" alt="FitPanel" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-size:1.1em;font-weight:900;color:#00E5FF;\'>FP</span>';">
+      </div>
+      <span>پنل مربی</span>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+
+  <!-- === لایه تاریک پشت منو === -->
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <!-- === منوی کناری (همبرگری) === -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>📋 لیست شاگردان</h3>
+      <p>برای دیدن برنامه هر شاگرد، روی اسمش کلیک کن</p>
+      <input type="text" class="search-box" id="searchBox" placeholder="🔍 جستجوی نام..." oninput="filterStudents(this.value)">
+    </div>
+    <ul class="student-list" id="studentList"></ul>
+  </aside>
+
+  <!-- === محتوای اصلی === -->
+  <div class="main-content">
+
+    <div class="welcome" id="welcome">
+      <div class="icon">🏋️</div>
+      <h2>خوش آمدی مربی</h2>
+      <p>روی آیکون ☰ بالای صفحه بزن و از لیست، شاگرد مورد نظر رو انتخاب کن</p>
+    </div>
+
+    <div class="student-card" id="studentCard">
+      <div class="header">
+        <div class="big-avatar" id="studentAvatar">م</div>
+        <div class="info">
+          <h3 id="studentName">—</h3>
+          <p id="studentMeta">—</p>
+        </div>
+      </div>
+      <div class="fee-row">
+        <div class="item">
+          <div class="label">📅 تاریخ سررسید</div>
+          <div class="value" id="studentDue">—</div>
+        </div>
+        <div class="item">
+          <div class="label">⏳ زمان باقی‌مانده</div>
+          <div class="value ok" id="studentRemaining">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="programContainer"></div>
+
+  </div>
+
+<script>
+  /* ============================================================
+     📋 اطلاعات ۲۰ شاگرد
+     ============================================================ */
+  const students = [
+    {
+      id: "mahdi", name: "محمد مهدی قاسمی", meta: "ماموت + دراپ‌ست • حرفه‌ای", avatar: "م",
+      dueDate: new Date(2026, 10, 16),
+      program: [
+        { dayNum: "۱", title: "سینه — ماموت", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر + پرس دمبل جفت موازی + پرس بالاسینه دمبل + پرس سینه دست‌جمع", "۶-۸"],
+          ["۲", "پرس بالاسینه هالتر + فلای دستگاه + پرس سینه دستگاه + کراس اوور", "۶-۸"],
+          ["۳", "پرس زیرسینه هالتر + فلای زیرسینه دمبل + قفسه سینه اسمیت", "۶-۸"],
+          ["۴", "شنا دست باز", "تا ناتوانی"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات | ۱.۵-۲ دقیقه بین بلوک‌ها" },
+        { dayNum: "۲", title: "بازو + ساعد — ماموت", type: "mamoot", rows: [
+          ["۱", "جلو بازو میله صاف سیم‌کش + EZ هالتر + دست‌عکس + دمبل تناوبی", "۶-۸"],
+          ["۲", "پشت بازو میله صاف + V سیم‌کش + دیپ + دمبل تک و جفت", "۶-۸"],
+          ["۳", "جلو بازو نشسته + چکشی شیب‌دار + پشت بازو هالتر + کراس", "۶-۸"],
+          ["۴", "ساعد صفه + مچ‌کردن + دستگاه + چرخشی", "۱۰-۱۲"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات | ۱.۵-۲ دقیقه بین بلوک‌ها" },
+        { dayNum: "۳", title: "پا + شکم — ماموت", type: "mamoot", rows: [
+          ["۱", "اسکات هالتر + هاگ پا + جلو پا دستگاه + خیاطی", "۶-۸"],
+          ["۲", "پشت پا دستگاه + پرس پا + پشت پا تک + پشت پا نشسته", "۶-۸"],
+          ["۳", "اسکات دمبل + صاف پا پرسی + صاف پا دستگاه", "۶-۸"],
+          ["۴", "لیفت", "۶-۸"],
+          ["۵", "شکم خلبانی", "تا ناتوانی"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات | ۱.۵-۲ دقیقه بین بلوک‌ها" },
+        { dayNum: "۴", title: "بک + سرشانه + کول — ماموت", type: "mamoot", rows: [
+          ["۱", "زیربغل ایکس + لت از جلو + پارویی T بار", "۶-۸"],
+          ["۲", "سرشانه دستگاه + آرنولدی + نشر جانبی تک جلو + تک V", "۶-۸"],
+          ["۳", "دو ضرب قدرتی + کول دمبل + کول اسمیت + کول هالتر", "۶-۸"],
+          ["۴", "نشر از پشت + دمبل میز بالاسینه + نشر پشت هالتر + فیله صفه", "۸-۱۰"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات | ۱.۵-۲ دقیقه بین بلوک‌ها" },
+        { dayNum: "۵", title: "سینه + بازو — دراپ‌ست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "پرس سینه هالتر", "drop", "۸+۶+۴"],
+          ["۲", "پرس بالاسینه دمبل + موازی", "super", "۸-۱۰"],
+          ["۳", "پرس زیرسینه هالتر", "drop", "۸+۶+۴"],
+          ["۴", "فلای دستگاه", "normal", "۱۰-۱۲"],
+          ["۵", "جلو بازو سیم‌کش", "drop", "۸+۶+۴"],
+          ["۶", "جلو بازو چکشی", "normal", "۱۰-۱۲"],
+          ["۷", "پشت بازو سیم‌کش", "drop", "۸+۶+۴"],
+          ["۸", "پشت بازو دیپ", "drop", "تا ناتوانی"],
+          ["۹", "ساعد صفه + چرخشی", "super", "۱۲-۱۵"],
+          ["۱۰", "شکم خلبانی", "normal", "تا ناتوانی"]
+        ], note: "⏱ ۱-۱.۵ دقیقه بین دراپ‌ست‌ها | ۶۰-۹۰ ثانیه بین عادی" },
+        { dayNum: "۶", title: "پا + بک — دراپ‌ست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "جلو پا دستگاه", "drop", "۱۰+۸+۶"],
+          ["۲", "اسکات اسمیت", "drop", "۸+۶+۴"],
+          ["۳", "پشت پا اسمیت", "drop", "۱۰+۸+۶"],
+          ["۴", "ساق پا دستگاه", "normal", "۱۲-۱۵"],
+          ["۵", "لت از جلو", "drop", "۸+۶+۴"],
+          ["۶", "تی بار", "drop", "۸+۶+۴"],
+          ["۷", "سرشانه دستگاه", "drop", "۸+۶+۴"],
+          ["۸", "سرشانه اسمیت", "drop", "۸+۶+۴"],
+          ["۹", "کول اسمیت", "normal", "۱۰-۱۲"],
+          ["۱۰", "فیله با صفه", "normal", "۱۵-۲۰"]
+        ], note: "⏱ ۱-۱.۵ دقیقه بین دراپ‌ست‌ها | ۶۰-۹۰ ثانیه بین عادی" }
+      ]
+    },
+    {
+      id: "ali", name: "علی رضایی", meta: "حجم مبتدی", avatar: "ع",
+      dueDate: new Date(2026, 11, 1),
+      program: [
+        { dayNum: "۱", title: "سینه + پشت بازو", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۴×۱۰"],
+          ["۲", "پرس بالا سینه دمبل", "۳×۱۲"],
+          ["۳", "فلای دستگاه", "۳×۱۵"],
+          ["۴", "پشت بازو سیم‌کش", "۳×۱۲"],
+          ["۵", "پشت بازو دیپ", "۳×۱۰"]
+        ], note: "⏱ ۶۰-۹۰ ثانیه بین ست‌ها" },
+        { dayNum: "۲", title: "پشت + جلو بازو", type: "mamoot", rows: [
+          ["۱", "زیربغل سیم‌کش", "۴×۱۰"],
+          ["۲", "لت از جلو", "۳×۱۲"],
+          ["۳", "پارویی دستگاه", "۳×۱۲"],
+          ["۴", "جلو بازو هالتر", "۳×۱۰"],
+          ["۵", "جلو بازو چکشی", "۳×۱۲"]
+        ], note: "⏱ ۶۰-۹۰ ثانیه بین ست‌ها" },
+        { dayNum: "۳", title: "پا + شکم", type: "mamoot", rows: [
+          ["۱", "اسکات هالتر", "۴×۱۰"],
+          ["۲", "پرس پا", "۳×۱۲"],
+          ["۳", "جلو پا دستگاه", "۳×۱۵"],
+          ["۴", "پشت پا دستگاه", "۳×۱۲"],
+          ["۵", "ساق پا", "۴×۲۰"],
+          ["۶", "کرانچ", "۳×۲۰"]
+        ], note: "⏱ ۹۰ ثانیه بین ست‌ها" },
+        { dayNum: "۴", title: "سرشانه + کول", type: "mamoot", rows: [
+          ["۱", "پرس سرشانه هالتر", "۴×۱۰"],
+          ["۲", "نشر جانبی دمبل", "۳×۱۲"],
+          ["۳", "نشر از جلو", "۳×۱۲"],
+          ["۴", "کول هالتر", "۳×۱۵"]
+        ], note: "⏱ ۶۰ ثانیه بین ست‌ها" }
+      ]
+    },
+    {
+      id: "reza", name: "رضا احمدی", meta: "کات پیشرفته", avatar: "ر",
+      dueDate: new Date(2026, 10, 5),
+      program: [
+        { dayNum: "۱", title: "پا + شکم — کات", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "اسکات اسمیت", "drop", "۱۲+۱۰+۸"],
+          ["۲", "پرس پا", "normal", "۱۵"],
+          ["۳", "پشت پا دستگاه", "normal", "۱۲"],
+          ["۴", "ساق پا", "normal", "۲۰"],
+          ["۵", "کرانچ سیم‌کش", "normal", "۱۵"]
+        ], note: "⏱ ۴۵-۶۰ ثانیه (دوران کات)" },
+        { dayNum: "۲", title: "سینه + پشت — کات", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "پرس سینه هالتر", "drop", "۱۰+۸+۶"],
+          ["۲", "پرس بالاسینه دمبل", "normal", "۱۲"],
+          ["۳", "زیربغل سیم‌کش", "drop", "۱۰+۸+۶"],
+          ["۴", "لت از جلو", "normal", "۱۲"]
+        ], note: "⏱ ۴۵ ثانیه بین ست‌ها" }
+      ]
+    },
+    {
+      id: "hossein", name: "حسین کریمی", meta: "قدرتی • پاورلیفتینگ", avatar: "ح",
+      dueDate: new Date(2026, 9, 20),
+      program: [
+        { dayNum: "۱", title: "پا — قدرتی", type: "mamoot", rows: [
+          ["۱", "اسکات هالتر", "۵×۵"],
+          ["۲", "پرس پا سنگین", "۴×۶"],
+          ["۳", "ددلیفت رومانیایی", "۴×۶"],
+          ["۴", "ساق پا سنگین", "۴×۸"]
+        ], note: "⏱ ۳-۵ دقیقه بین ست‌ها (قدرتی)" },
+        { dayNum: "۲", title: "سینه — قدرتی", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۵×۵"],
+          ["۲", "پرس بالاسینه هالتر", "۴×۶"],
+          ["۳", "دیپ وزنه‌دار", "۴×۸"],
+          ["۴", "پشت بازو هالتر خوابیده", "۴×۸"]
+        ], note: "⏱ ۳ دقیقه بین ست‌ها" },
+        { dayNum: "۳", title: "ددلیفت — قدرتی", type: "mamoot", rows: [
+          ["۱", "ددلیفت", "۵×۳"],
+          ["۲", "پارویی هالتر", "۴×۶"],
+          ["۳", "زیربغل هالتر خم", "۴×۶"],
+          ["۴", "فیله کمر", "۴×۱۰"]
+        ], note: "⏱ ۴-۵ دقیقه بین ست‌های ددلیفت" }
+      ]
+    },
+    {
+      id: "sara", name: "سارا محمدی", meta: "فیتنس بانوان", avatar: "س",
+      dueDate: new Date(2026, 11, 10),
+      program: [
+        { dayNum: "۱", title: "پا + باسن", type: "mamoot", rows: [
+          ["۱", "اسکات دمبل", "۴×۱۲"],
+          ["۲", "هاگ پا دستگاه", "۳×۱۵"],
+          ["۳", "پشت پا دستگاه", "۳×۱۵"],
+          ["۴", "باسن دستگاه", "۴×۱۵"],
+          ["۵", "ساق پا", "۴×۲۰"]
+        ], note: "⏱ ۶۰ ثانیه بین ست‌ها" },
+        { dayNum: "۲", title: "بالاتنه + شکم", type: "mamoot", rows: [
+          ["۱", "پرس سرشانه دمبل", "۳×۱۲"],
+          ["۲", "نشر جانبی", "۳×۱۵"],
+          ["۳", "زیربغل سیم‌کش", "۳×۱۲"],
+          ["۴", "پلانک", "۳×۶۰ ثانیه"],
+          ["۵", "کرانچ", "۳×۲۰"]
+        ], note: "⏱ ۴۵-۶۰ ثانیه" }
+      ]
+    },
+    {
+      id: "amir", name: "امیر تهرانی", meta: "ماموت حرفه‌ای", avatar: "ا",
+      dueDate: new Date(2026, 10, 25),
+      program: [
+        { dayNum: "۱", title: "سینه — ماموت", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر + پرس دمبل موازی + پرس بالاسینه", "۶-۸"],
+          ["۲", "فلای سینه + کراس + پرس دستگاه", "۶-۸"],
+          ["۳", "پرس زیرسینه + قفسه سینه اسمیت", "۶-۸"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات" },
+        { dayNum: "۲", title: "پا — ماموت", type: "mamoot", rows: [
+          ["۱", "اسکات + هاگ + جلو پا + خیاطی", "۶-۸"],
+          ["۲", "پشت پا + پرس پا + پشت پا تک", "۶-۸"],
+          ["۳", "اسکات دمبل + صاف پا", "۶-۸"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات" }
+      ]
+    },
+    {
+      id: "nima", name: "نیما اسدی", meta: "حجم متوسط", avatar: "ن",
+      dueDate: new Date(2026, 11, 3),
+      program: [
+        { dayNum: "۱", title: "سینه + پشت بازو", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۴×۱۰"],
+          ["۲", "پرس بالاسینه دمبل", "۳×۱۲"],
+          ["۳", "کراس اوور", "۳×۱۵"],
+          ["۴", "پشت بازو سیم‌کش", "۳×۱۲"]
+        ], note: "⏱ ۶۰-۹۰ ثانیه" },
+        { dayNum: "۲", title: "پشت + جلو بازو", type: "mamoot", rows: [
+          ["۱", "زیربغل دستگاه", "۴×۱۰"],
+          ["۲", "لت از جلو", "۳×۱۲"],
+          ["۳", "پارویی T بار", "۳×۱۰"],
+          ["۴", "جلو بازو هالتر", "۳×۱۲"]
+        ], note: "⏱ ۶۰-۹۰ ثانیه" },
+        { dayNum: "۳", title: "پا + شکم", type: "mamoot", rows: [
+          ["۱", "اسکات", "۴×۱۰"],
+          ["۲", "پرس پا", "۳×۱۲"],
+          ["۳", "جلو پا", "۳×۱۵"],
+          ["۴", "پشت پا", "۳×۱۲"],
+          ["۵", "ساق پا", "۴×۲۰"]
+        ], note: "⏱ ۹۰ ثانیه" }
+      ]
+    },
+    {
+      id: "mohsen", name: "محسن رحیمی", meta: "دراپ‌ست پیشرفته", avatar: "مح",
+      dueDate: new Date(2026, 10, 30),
+      program: [
+        { dayNum: "۱", title: "سینه — دراپ‌ست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "پرس سینه هالتر", "drop", "۱۰+۸+۶"],
+          ["۲", "پرس بالاسینه دمبل", "normal", "۱۲"],
+          ["۳", "فلای دستگاه", "drop", "۱۲+۱۰+۸"],
+          ["۴", "کراس اوور", "normal", "۱۵"]
+        ], note: "⏱ ۱ دقیقه بین دراپ‌ست‌ها" },
+        { dayNum: "۲", title: "پا — دراپ‌ست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "جلو پا دستگاه", "drop", "۱۲+۱۰+۸"],
+          ["۲", "اسکات اسمیت", "drop", "۱۰+۸+۶"],
+          ["۳", "پشت پا دستگاه", "drop", "۱۲+۱۰+۸"],
+          ["۴", "ساق پا", "normal", "۲۰"]
+        ], note: "⏱ ۱ دقیقه بین دراپ‌ست‌ها" }
+      ]
+    },
+    {
+      id: "arash", name: "آرش نجفی", meta: "تفکیکی متوسط", avatar: "آ",
+      dueDate: new Date(2026, 11, 8),
+      program: [
+        { dayNum: "۱", title: "سینه", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۴×۱۰"],
+          ["۲", "پرس بالاسینه دمبل", "۳×۱۲"],
+          ["۳", "فلای دستگاه", "۳×۱۵"],
+          ["۴", "کراس اوور", "۳×۱۵"]
+        ], note: "⏱ ۶۰ ثانیه" },
+        { dayNum: "۲", title: "پشت", type: "mamoot", rows: [
+          ["۱", "زیربغل سیم‌کش", "۴×۱۰"],
+          ["۲", "لت از جلو", "۳×۱۲"],
+          ["۳", "پارویی T بار", "۳×۱۰"],
+          ["۴", "فیله کمر", "۳×۱۵"]
+        ], note: "⏱ ۶۰ ثانیه" },
+        { dayNum: "۳", title: "پا", type: "mamoot", rows: [
+          ["۱", "اسکات", "۴×۱۰"],
+          ["۲", "پرس پا", "۳×۱۲"],
+          ["۳", "جلو پا", "۳×۱۵"],
+          ["۴", "پشت پا", "۳×۱۲"]
+        ], note: "⏱ ۹۰ ثانیه" },
+        { dayNum: "۴", title: "سرشانه + بازو", type: "mamoot", rows: [
+          ["۱", "پرس سرشانه", "۴×۱۰"],
+          ["۲", "نشر جانبی", "۳×۱۲"],
+          ["۳", "جلو بازو هالتر", "۳×۱۰"],
+          ["۴", "پشت بازو سیم‌کش", "۳×۱۲"]
+        ], note: "⏱ ۶۰ ثانیه" }
+      ]
+    },
+    {
+      id: "kian", name: "کیان صادقی", meta: "کات شدید", avatar: "ک",
+      dueDate: new Date(2026, 10, 12),
+      program: [
+        { dayNum: "۱", title: "تمام بدن — کات", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "اسکات اسمیت", "drop", "۱۵+۱۲+۱۰"],
+          ["۲", "پرس سینه هالتر", "drop", "۱۲+۱۰+۸"],
+          ["۳", "لت از جلو", "drop", "۱۲+۱۰+۸"],
+          ["۴", "پرس سرشانه", "normal", "۱۵"],
+          ["۵", "کرانچ سیم‌کش", "normal", "۲۰"]
+        ], note: "⏱ ۴۵ ثانیه (چربی‌سوزی)" }
+      ]
+    },
+    {
+      id: "behzad", name: "بهزاد مرادی", meta: "حجم پیشرفته", avatar: "ب",
+      dueDate: new Date(2026, 11, 15),
+      program: [
+        { dayNum: "۱", title: "سینه + پشت بازو", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۴×۸"],
+          ["۲", "پرس بالاسینه دمبل", "۴×۱۰"],
+          ["۳", "فلای دستگاه", "۳×۱۲"],
+          ["۴", "دیپ وزنه‌دار", "۳×۱۰"],
+          ["۵", "پشت بازو هالتر خوابیده", "۳×۱۰"]
+        ], note: "⏱ ۹۰ ثانیه" },
+        { dayNum: "۲", title: "پا سنگین", type: "mamoot", rows: [
+          ["۱", "اسکات هالتر", "۵×۸"],
+          ["۲", "پرس پا", "۴×۱۰"],
+          ["۳", "پشت پا رومانیایی", "۳×۱۰"],
+          ["۴", "ساق پا ایستاده", "۵×۱۵"]
+        ], note: "⏱ ۲ دقیقه" }
+      ]
+    },
+    {
+      id: "sina", name: "سینا فتحی", meta: "استقامتی متوسط", avatar: "س",
+      dueDate: new Date(2026, 11, 20),
+      program: [
+        { dayNum: "۱", title: "دایره‌ای — استقامت", type: "mamoot", rows: [
+          ["۱", "برپی", "۴×۲۰"],
+          ["۲", "اسکات پرشی", "۴×۱۵"],
+          ["۳", "شنا سوئدی", "۴×۱۵"],
+          ["۴", "کرانچ", "۴×۲۰"],
+          ["۵", "پلانک", "۴×۴۵ ثانیه"]
+        ], note: "⏱ ۳۰ ثانیه بین حرکات" }
+      ]
+    },
+    {
+      id: "farhad", name: "فرهاد یوسفی", meta: "پاورلیفتینگ", avatar: "ف",
+      dueDate: new Date(2026, 10, 28),
+      program: [
+        { dayNum: "۱", title: "اسکات سنگین", type: "mamoot", rows: [
+          ["۱", "اسکات هالتر", "۵×۵"],
+          ["۲", "پرس پا", "۴×۸"],
+          ["۳", "ساق پا", "۴×۱۰"]
+        ], note: "⏱ ۴ دقیقه بین ست‌ها" },
+        { dayNum: "۲", title: "پرس سینه سنگین", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۵×۵"],
+          ["۲", "پرس بالاسینه هالتر", "۴×۶"],
+          ["۳", "دیپ وزنه‌دار", "۴×۸"]
+        ], note: "⏱ ۳ دقیقه" },
+        { dayNum: "۳", title: "ددلیفت سنگین", type: "mamoot", rows: [
+          ["۱", "ددلیفت", "۵×۳"],
+          ["۲", "پارویی هالتر", "۴×۶"],
+          ["۳", "فیله کمر", "۴×۱۰"]
+        ], note: "⏱ ۵ دقیقه" }
+      ]
+    },
+    {
+      id: "omid", name: "امید رستمی", meta: "حجم مبتدی", avatar: "او",
+      dueDate: new Date(2026, 11, 5),
+      program: [
+        { dayNum: "۱", title: "بالاتنه", type: "mamoot", rows: [
+          ["۱", "پرس سینه دستگاه", "۳×۱۰"],
+          ["۲", "زیربغل سیم‌کش", "۳×۱۰"],
+          ["۳", "پرس سرشانه دستگاه", "۳×۱۲"],
+          ["۴", "جلو بازو دمبل", "۳×۱۲"]
+        ], note: "⏱ ۹۰ ثانیه" },
+        { dayNum: "۲", title: "پایین‌تنه", type: "mamoot", rows: [
+          ["۱", "پرس پا", "۳×۱۲"],
+          ["۲", "جلو پا", "۳×۱۲"],
+          ["۳", "پشت پا", "۳×۱۲"],
+          ["۴", "ساق پا", "۴×۱۵"]
+        ], note: "⏱ ۹۰ ثانیه" }
+      ]
+    },
+    {
+      id: "vahid", name: "وحید کاظمی", meta: "ماموت بازو", avatar: "و",
+      dueDate: new Date(2026, 10, 18),
+      program: [
+        { dayNum: "۱", title: "بازو — ماموت", type: "mamoot", rows: [
+          ["۱", "جلو بازو سیم‌کش + EZ + چکشی + تناوبی", "۶-۸"],
+          ["۲", "پشت بازو سیم‌کش + V + دیپ + دمبل", "۶-۸"],
+          ["۳", "ساعد صفه + مچ + چرخشی", "۱۰-۱۲"]
+        ], note: "⏱ ۸-۱۰ ثانیه بین حرکات" }
+      ]
+    },
+    {
+      id: "yasin", name: "یاسین قربانی", meta: "کات", avatar: "ی",
+      dueDate: new Date(2026, 10, 22),
+      program: [
+        { dayNum: "۱", title: "کات — دایره‌ای", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "اسکات", "drop", "۱۵+۱۲+۱۰"],
+          ["۲", "پرس سینه", "drop", "۱۲+۱۰+۸"],
+          ["۳", "زیربغل", "drop", "۱۲+۱۰+۸"],
+          ["۴", "کرانچ", "normal", "۲۵"]
+        ], note: "⏱ ۴۵ ثانیه" }
+      ]
+    },
+    {
+      id: "arman", name: "آرمان شریفی", meta: "حجم متوسط", avatar: "آر",
+      dueDate: new Date(2026, 11, 12),
+      program: [
+        { dayNum: "۱", title: "سینه", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۴×۱۰"],
+          ["۲", "پرس دمبل شیب‌دار", "۳×۱۲"],
+          ["۳", "فلای دستگاه", "۳×۱۵"]
+        ], note: "⏱ ۶۰ ثانیه" },
+        { dayNum: "۲", title: "پشت", type: "mamoot", rows: [
+          ["۱", "زیربغل سیم‌کش", "۴×۱۰"],
+          ["۲", "لت از جلو", "۳×۱۲"],
+          ["۳", "پارویی", "۳×۱۰"]
+        ], note: "⏱ ۶۰ ثانیه" },
+        { dayNum: "۳", title: "پا", type: "mamoot", rows: [
+          ["۱", "اسکات", "۴×۱۰"],
+          ["۲", "پرس پا", "۳×۱۲"],
+          ["۳", "پشت پا", "۳×۱۲"],
+          ["۴", "ساق پا", "۴×۱۵"]
+        ], note: "⏱ ۹۰ ثانیه" }
+      ]
+    },
+    {
+      id: "kaveh", name: "کاوه نادری", meta: "قدرتی پیشرفته", avatar: "کا",
+      dueDate: new Date(2026, 11, 18),
+      program: [
+        { dayNum: "۱", title: "قدرتی — پا", type: "mamoot", rows: [
+          ["۱", "اسکات هالتر", "۵×۵"],
+          ["۲", "پرس پا سنگین", "۴×۶"],
+          ["۳", "ددلیفت رومانیایی", "۴×۶"]
+        ], note: "⏱ ۴ دقیقه" },
+        { dayNum: "۲", title: "قدرتی — سینه", type: "mamoot", rows: [
+          ["۱", "پرس سینه هالتر", "۵×۵"],
+          ["۲", "پرس بالاسینه", "۴×۶"],
+          ["۳", "دیپ وزنه‌دار", "۴×۸"]
+        ], note: "⏱ ۳ دقیقه" }
+      ]
+    },
+    {
+      id: "shahin", name: "شاهین امینی", meta: "فیتنس عمومی", avatar: "ش",
+      dueDate: new Date(2026, 11, 25),
+      program: [
+        { dayNum: "۱", title: "فول بادی", type: "mamoot", rows: [
+          ["۱", "اسکات", "۳×۱۲"],
+          ["۲", "پرس سینه", "۳×۱۲"],
+          ["۳", "زیربغل", "۳×۱۲"],
+          ["۴", "پرس سرشانه", "۳×۱۲"],
+          ["۵", "کرانچ", "۳×۲۰"]
+        ], note: "⏱ ۶۰ ثانیه" }
+      ]
+    },
+    {
+      id: "pedram", name: "پدرام سلطانی", meta: "دراپ‌ست + سوپرست", avatar: "پ",
+      dueDate: new Date(2026, 10, 8),
+      program: [
+        { dayNum: "۱", title: "سینه — دراپ‌ست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "پرس سینه هالتر", "drop", "۱۰+۸+۶"],
+          ["۲", "پرس بالاسینه دمبل + فلای", "super", "۱۲"],
+          ["۳", "کراس اوور", "drop", "۱۵+۱۲+۱۰"]
+        ], note: "⏱ ۱ دقیقه" },
+        { dayNum: "۲", title: "پا — دراپ‌ست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "جلو پا", "drop", "۱۲+۱۰+۸"],
+          ["۲", "اسکات اسمیت", "drop", "۱۰+۸+۶"],
+          ["۳", "پشت پا + ساق", "super", "۱۵"]
+        ], note: "⏱ ۱ دقیقه" },
+        { dayNum: "۳", title: "بازو — سوپرست", type: "drop", headers: ["#", "حرکت", "سیستم", "تکرار"], rows: [
+          ["۱", "جلو بازو سیم‌کش + پشت بازو سیم‌کش", "super", "۱۰"],
+          ["۲", "جلو بازو چکشی + پشت بازو دیپ", "super", "۱۲"],
+          ["۳", "ساعد + مچ", "super", "۱۵"]
+        ], note: "⏱ ۶۰ ثانیه" }
+      ]
+    }
+  ];
+
+  /* ============================================================
+     ⚙️ توابع
+     ============================================================ */
+
+  function toPersianDate(date) {
+    try {
+      return date.toLocaleDateString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    } catch(e) {
+      return date.toLocaleDateString('fa-IR');
+    }
+  }
+
+  function getRemaining(dueDate) {
+    const now = new Date();
+    const diff = dueDate - now;
+    if (diff <= 0) return { text: '⛔ منقضی', cls: 'danger' };
+    const totalMinutes = Math.floor(diff / (1000 * 60));
+    const days = Math.floor(totalMinutes / (60 * 24));
+    const minutes = totalMinutes % 60;
+    let text = days > 0 ? days + ' روز' : minutes + ' دقیقه';
+    let cls = 'ok';
+    if (days <= 3) cls = 'danger';
+    else if (days <= 7) cls = 'warning';
+    return { text, cls };
+  }
+
+  // === ساخت لیست شاگردان با فیلتر ===
+  function renderStudentList(filter = '') {
+    const list = document.getElementById('studentList');
+    const filtered = filter
+      ? students.filter(s => s.name.includes(filter) || s.meta.includes(filter))
+      : students;
+
+    if (filtered.length === 0) {
+      list.innerHTML = `
+        <div class="no-result">
+          <div class="icon">🔍</div>
+          شاگردی با این نام پیدا نشد
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = filtered.map(s => `
+      <li class="student-item" data-id="${s.id}" onclick="showStudent('${s.id}')">
+        <div class="avatar">${s.avatar}</div>
+        <div class="info">
+          <div class="name">${s.name}</div>
+          <div class="meta">${s.meta}</div>
+        </div>
+        <div class="arrow">‹</div>
+      </li>
+    `).join('');
+  }
+
+  // === فیلتر کردن لیست ===
+  function filterStudents(text) {
+    renderStudentList(text.trim());
+  }
+
+  // === نمایش برنامه شاگرد ===
+  function showStudent(id) {
+    const student = students.find(s => s.id === id);
+    if (!student) return;
+
+    document.querySelectorAll('.student-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
+
+    document.getElementById('welcome').style.display = 'none';
+
+    const card = document.getElementById('studentCard');
+    card.classList.add('show');
+    document.getElementById('studentAvatar').textContent = student.avatar;
+    document.getElementById('studentName').textContent = student.name;
+    document.getElementById('studentMeta').textContent = student.meta;
+    document.getElementById('studentDue').textContent = toPersianDate(student.dueDate);
+
+    const remaining = getRemaining(student.dueDate);
+    const remEl = document.getElementById('studentRemaining');
+    remEl.textContent = remaining.text;
+    remEl.className = 'value ' + remaining.cls;
+
+    const container = document.getElementById('programContainer');
+    container.innerHTML = student.program.map(day => {
+      let tableHTML = '';
+      if (day.type === 'drop') {
+        tableHTML = `
+          <table>
+            <tr>${day.headers.map(h => `<th>${h}</th>`).join('')}</tr>
+            ${day.rows.map(row => `
+              <tr>
+                <td>${row[0]}</td>
+                <td>${row[1]}</td>
+                <td><span class="tag ${row[2]}">${row[2] === 'drop' ? 'دراپ‌ست' : row[2] === 'super' ? 'سوپرست' : 'عادی'}</span></td>
+                <td>${row[3]}</td>
+              </tr>
+            `).join('')}
+          </table>
+        `;
+      } else {
+        tableHTML = `
+          <table>
+            <tr><th>بلوک</th><th>حرکات</th><th>تکرار</th></tr>
+            ${day.rows.map(row => `
+              <tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>
+            `).join('')}
+          </table>
+        `;
+      }
+
+      return `
+        <div class="day ${day.type}">
+          <div class="day-title">
+            <span class="day-num">${day.dayNum}</span>
+            <span>${day.title}</span>
+          </div>
+          ${tableHTML}
+          ${day.note ? `<div class="note">${day.note}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    toggleMenu();
+  }
+
+  // === باز/بسته کردن منو ===
+  function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+    document.getElementById('hamburger').classList.toggle('active');
+  }
+
+  // === اجرای اولیه ===
+  document.addEventListener('DOMContentLoaded', function() {
+    renderStudentList();
+  });
+</script>
+
+</body>
+</html>
